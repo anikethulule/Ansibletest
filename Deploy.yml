@@ -1,0 +1,9 @@
+---
+- name: Deploy application
+  hosts: "{{ server_name }}"
+  tasks:
+    - name: Ensure nginx is installed
+      yum:
+        name: nginx
+        state: present
+        

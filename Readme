@@ -1,0 +1,46 @@
+var AnsibleAWX = Class.create();
+AnsibleAWX.prototype = {
+    initialize: function() {
+    },
+    
+    launchPlaybook: function(serverName) {
+        var restMessage = new sn_ws.RESTMessageV2('AnsibleAWX', 'default'); // Use the name of your REST message
+        restMessage.setStringParameterNoEscape('server_name', serverName); // Set the server name parameter
+        
+        var response = restMessage.execute();
+        var responseBody = response.getBody();
+        var httpStatus = response.getStatusCode();
+        
+        // Log the response for debugging
+        gs.info('AWX Response: ' + responseBody);
+        gs.info('HTTP Status: ' + httpStatus);
+        
+        if (httpStatus == 201) { // Assuming 201 Created is the success status
+            return 'Playbook launched successfully';
+        } else {
+            return 'Failed to launch playbook: ' + responseBody;
+        }
+    },
+    
+    type: 'AnsibleAWX'
+};
+
+
+{
+  "extra_vars": {
+    "server_name": "${server_name}"
+  }
+}
+
+
+
+
+(function executeRule(current, previous /*null when async*/) {
+    var ansibleAWX = new AnsibleAWX();
+    var serverName = current.u_server_name; // Assuming 'u_server_name' is a field in the ticket
+    var result = ansibleAWX.launchPlaybook(serverName);
+    
+    // Optionally, you can update the ticket with the result
+    current.work_notes = result;
+    current.update();
+})(current, previous);
